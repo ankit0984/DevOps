@@ -1,0 +1,15 @@
+---
+- name: Install nginx
+  hosts: all
+  become: true
+  become_user: root  # This is optional, root is usually the default
+
+  tasks:
+    - name: Install nginx
+      apt:
+        name: nginx
+        state: present
+    - name: Start nginx
+      service:
+        name: nginx
+        state: started

@@ -1,0 +1,49 @@
+---
+- name: Install Docker on Ubuntu
+  hosts: all
+  become: true  # Escalate privileges to root
+
+  tasks:
+    - name: Install curl
+      apt:
+        name: curl
+        state: present
+
+    - name: Add Docker GPG key
+      shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+
+    - name: Add Docker APT repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
+        state: present
+
+    - name: Update apt package index
+      apt:
+        update_cache: yes
+
+    - name: Install Docker CE
+      apt:
+        name: docker-ce
+        state: present
+
+    - name: Check apt-cache policy for Docker CE
+      shell: apt-cache policy docker-ce
+      register: docker_policy
+
+    - name: Print Docker apt-cache policy
+      debug:
+        msg: "{{ docker_policy.stdout_lines }}"
+
+    - name: Start and enable Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Check Docker status
+      command: systemctl status docker
+      register: docker_status
+
+    - name: Print Docker status
+      debug:
+        msg: "{{ docker_status.stdout_lines }}"
